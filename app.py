@@ -3,12 +3,12 @@ import json
 from flask import Flask, request, render_template, send_file
 from dotenv import load_dotenv
 from twilio.rest import Client
-from twilio.twiml.voice_response import VoiceResponse, Gather
+from twilio.twiml.voice_response import VoiceResponse
 
 load_dotenv()
 app = Flask(__name__)
 
-# Load Twilio credentials from environment
+# Load Twilio credentials
 TWILIO_ACCOUNT_SID = os.getenv("TWILIO_ACCOUNT_SID")
 TWILIO_AUTH_TOKEN = os.getenv("TWILIO_AUTH_TOKEN")
 TWILIO_PHONE_NUMBER = os.getenv("TWILIO_PHONE_NUMBER")
@@ -20,7 +20,7 @@ def index():
     if request.method == 'POST':
         to_number = request.form['phone']
         call = client.calls.create(
-            url='https://hr-je85.onrender.com/voice?q=0',  # Your deployed URL
+            url='https://hr-je85.onrender.com/voice?q=0',
             to=to_number,
             from_=TWILIO_PHONE_NUMBER
         )
@@ -36,25 +36,29 @@ def voice():
 
     response = VoiceResponse()
 
-    # Record answer from last question
+    # ✅ Save the previous answer's recording URL
     if request.method == "POST":
-        answer = request.values.get("SpeechResult", "").strip()
-        if answer and q > 0:
+        recording_url = request.values.get("RecordingUrl")
+        if recording_url and q > 0:
             with open("responses.txt", "a") as f:
-                f.write(f"Q{q}: {questions[q-1]}\nA: {answer}\n\n")
+                f.write(f"Q{q}: {questions[q-1]}\nRecording URL: {recording_url}.mp3\n\n")
 
+    # ✅ Ask the next question and record the answer
     if q < len(questions):
-        gather = Gather(input='speech', action=f"/voice?q={q+1}", method="POST", timeout=5)
-        gather.say(questions[q])
-        response.append(gather)
-        response.redirect(f"/voice?q={q}")  # Repeat if no input
+        response.say(questions[q])
+        response.record(
+            action=f"/voice?q={q+1}",
+            method="POST",
+            maxLength=30,
+            playBeep=True,
+            timeout=3
+        )
     else:
         response.say("Thank you. We have recorded your responses. Goodbye!")
         response.hangup()
 
     return str(response)
 
-# ✅ New route to download responses.txt
 @app.route('/download')
 def download_file():
     file_path = "responses.txt"
