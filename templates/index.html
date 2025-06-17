@@ -1,16 +1,23 @@
-<!-- templates/index.html -->
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-    <title>Start Interview Call</title>
+    <meta charset="UTF-8">
+    <title>HR Voice Call System</title>
 </head>
 <body>
-    <h1>Start Automated Interview</h1>
-    <form method="POST">
-        <label for="phone">Phone Number (E.164 format):</label><br>
-        <input type="text" id="phone" name="phone" placeholder="+91XXXXXXXXXX" required>
+    <h1>📞 HR Voice Interview Call</h1>
+
+    <form method="POST" action="/">
+        <label for="phone">Enter Phone Number:</label><br>
+        <input type="text" name="phone" placeholder="+91XXXXXXXXXX" required>
         <br><br>
         <button type="submit">Start Call</button>
     </form>
+
+    <br>
+    <!-- ✅ Download button for responses -->
+    <a href="/download">
+        <button>⬇️ Download Responses</button>
+    </a>
 </body>
 </html>
