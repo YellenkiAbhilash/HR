@@ -78,6 +78,11 @@ def show_responses():
     responses = Response.query.all()
     return render_template('responses.html', responses=responses)
 
+@app.route('/responses')
+def show_responses():
+    responses = Response.query.all()
+    return render_template('responses.html', responses=responses)
+
 # Run the app
 if __name__ == '__main__':
     with app.app_context():
