@@ -1,6 +1,6 @@
 import os
 import json
-from flask import Flask, request, render_template
+from flask import Flask, request, render_template, send_file
 from dotenv import load_dotenv
 from twilio.rest import Client
 from twilio.twiml.voice_response import VoiceResponse, Gather
@@ -47,12 +47,21 @@ def voice():
         gather = Gather(input='speech', action=f"/voice?q={q+1}", method="POST", timeout=5)
         gather.say(questions[q])
         response.append(gather)
-        response.redirect(f"/voice?q={q}")  # If no speech input, repeat the question
+        response.redirect(f"/voice?q={q}")  # Repeat if no input
     else:
         response.say("Thank you. We have recorded your responses. Goodbye!")
         response.hangup()
 
     return str(response)
+
+# ✅ New route to download responses.txt
+@app.route('/download')
+def download_file():
+    file_path = "responses.txt"
+    try:
+        return send_file(file_path, as_attachment=True)
+    except FileNotFoundError:
+        return "❌ responses.txt not found.", 404
 
 if __name__ == '__main__':
     app.run(debug=True)
