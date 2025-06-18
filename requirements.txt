@@ -1,5 +1,3 @@
 flask
 twilio
 python-dotenv
-faster-whisper
-requests
