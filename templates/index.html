@@ -1,22 +1,12 @@
 <!DOCTYPE html>
 <html>
-<head><title>Admin Dashboard</title></head>
+<head><title>HR Interview</title></head>
 <body>
-  <h2>Recorded Responses</h2>
-  {% if responses %}
-    <table border="1">
-      <tr><th>Question No</th><th>Question</th><th>Answer</th></tr>
-      {% for row in responses %}
-      <tr>
-        <td>{{ row[0] }}</td>
-        <td>{{ row[1] }}</td>
-        <td>{{ row[2] }}</td>
-      </tr>
-      {% endfor %}
-    </table>
-    <a href="/download">📥 Download CSV</a>
-  {% else %}
-    <p>No responses yet.</p>
-  {% endif %}
+  <h2>Start Interview</h2>
+  <form method="POST">
+    <input type="text" name="phone" placeholder="+91..." required>
+    <button type="submit">Start Call</button>
+  </form>
+  <a href="/admin">Go to Admin Dashboard</a>
 </body>
 </html>
