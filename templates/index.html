@@ -1,23 +1,22 @@
 <!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>HR Voice Interview</title>
-</head>
+<html>
+<head><title>Admin Dashboard</title></head>
 <body>
-    <h1>📞 HR Voice Interview System</h1>
-
-    <form method="POST" action="/">
-        <label for="phone">Enter Phone Number:</label><br>
-        <input type="text" name="phone" placeholder="+91XXXXXXXXXX" required>
-        <br><br>
-        <button type="submit">Start Call</button>
-    </form>
-
-    <br><br>
-
-    <a href="/download">
-        <button>⬇️ Download Responses</button>
-    </a>
+  <h2>Recorded Responses</h2>
+  {% if responses %}
+    <table border="1">
+      <tr><th>Question No</th><th>Question</th><th>Answer</th></tr>
+      {% for row in responses %}
+      <tr>
+        <td>{{ row[0] }}</td>
+        <td>{{ row[1] }}</td>
+        <td>{{ row[2] }}</td>
+      </tr>
+      {% endfor %}
+    </table>
+    <a href="/download">📥 Download CSV</a>
+  {% else %}
+    <p>No responses yet.</p>
+  {% endif %}
 </body>
 </html>
