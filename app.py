@@ -3,7 +3,7 @@ import json
 from flask import Flask, request, render_template, send_file
 from dotenv import load_dotenv
 from twilio.rest import Client
-from twilio.twiml.voice_response import VoiceResponse
+from twilio.twiml.voice_response import VoiceResponse, Gather
 
 load_dotenv()
 app = Flask(__name__)
@@ -20,7 +20,7 @@ def index():
     if request.method == 'POST':
         to_number = request.form['phone']
         call = client.calls.create(
-            url='https://hr-je85.onrender.com/voice?q=0',
+            url='https://hr-je85.onrender.com/voice?q=0',  # Update with your deployed URL
             to=to_number,
             from_=TWILIO_PHONE_NUMBER
         )
@@ -36,23 +36,24 @@ def voice():
 
     response = VoiceResponse()
 
-    # ✅ Save the previous answer's recording URL
+    # ✅ Save last answer as text
     if request.method == "POST":
-        recording_url = request.values.get("RecordingUrl")
-        if recording_url and q > 0:
+        answer = request.values.get("SpeechResult", "").strip()
+        if answer and q > 0:
             with open("responses.txt", "a") as f:
-                f.write(f"Q{q}: {questions[q-1]}\nRecording URL: {recording_url}.mp3\n\n")
+                f.write(f"Q{q}: {questions[q-1]}\nA: {answer}\n\n")
 
-    # ✅ Ask the next question and record the answer
+    # ✅ Ask next question using speech input
     if q < len(questions):
-        response.say(questions[q])
-        response.record(
+        gather = Gather(
+            input='speech',
             action=f"/voice?q={q+1}",
             method="POST",
-            maxLength=30,
-            playBeep=True,
-            timeout=3
+            timeout=5
         )
+        gather.say(questions[q])
+        response.append(gather)
+        response.redirect(f"/voice?q={q}")  # Retry if no input
     else:
         response.say("Thank you. We have recorded your responses. Goodbye!")
         response.hangup()
