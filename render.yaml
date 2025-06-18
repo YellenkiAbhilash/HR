@@ -1,10 +1,13 @@
 services:
   - type: web
-    name: flask-interview-app
+    name: hr-interview-tool
     env: python
-    plan: free
-    buildCommand: ""
-    startCommand: gunicorn app:app
+    buildCommand: pip install -r requirements.txt
+    startCommand: python app.py
     envVars:
-      - key: FLASK_ENV
-        value: production
+      - key: TWILIO_ACCOUNT_SID
+        value: your_twilio_sid
+      - key: TWILIO_AUTH_TOKEN
+        value: your_twilio_token
+      - key: TWILIO_PHONE_NUMBER
+        value: your_twilio_phone_number
