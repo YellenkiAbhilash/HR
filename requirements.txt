@@ -1,5 +1,4 @@
 flask
 twilio
 python-dotenv
-openai-whisper
-torch
+git+https://github.com/openai/whisper.git
