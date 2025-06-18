@@ -1,13 +1,7 @@
 services:
   - type: web
-    name: hr-interview-whisper
+    name: hr-interview-app
     env: python
     buildCommand: pip install -r requirements.txt
     startCommand: python app.py
-    envVars:
-      - key: TWILIO_ACCOUNT_SID
-        value: your_sid
-      - key: TWILIO_AUTH_TOKEN
-        value: your_token
-      - key: TWILIO_PHONE_NUMBER
-        value: your_twilio_number
+    pythonVersion: 3.10
