@@ -3,12 +3,12 @@ import json
 from flask import Flask, request, render_template, send_file
 from dotenv import load_dotenv
 from twilio.rest import Client
-from twilio.twiml.voice_response import VoiceResponse, Gather
+from twilio.twiml.voice_response import VoiceResponse, Record, Say
 
 load_dotenv()
 app = Flask(__name__)
 
-# Load Twilio credentials
+# Twilio credentials
 TWILIO_ACCOUNT_SID = os.getenv("TWILIO_ACCOUNT_SID")
 TWILIO_AUTH_TOKEN = os.getenv("TWILIO_AUTH_TOKEN")
 TWILIO_PHONE_NUMBER = os.getenv("TWILIO_PHONE_NUMBER")
@@ -20,7 +20,7 @@ def index():
     if request.method == 'POST':
         to_number = request.form['phone']
         call = client.calls.create(
-            url='https://hr-je85.onrender.com/voice?q=0',  # Update with your deployed URL
+            url='https://hr-je85.onrender.com/voice?q=0',
             to=to_number,
             from_=TWILIO_PHONE_NUMBER
         )
@@ -36,24 +36,22 @@ def voice():
 
     response = VoiceResponse()
 
-    # ✅ Save last answer as text
+    # If it's a recording callback
     if request.method == "POST":
-        answer = request.values.get("SpeechResult", "").strip()
-        if answer and q > 0:
-            with open("responses.txt", "a") as f:
-                f.write(f"Q{q}: {questions[q-1]}\nA: {answer}\n\n")
+        recording_url = request.values.get("RecordingUrl", "")
+        if recording_url and q > 0:
+            with open("recordings.txt", "a") as f:
+                f.write(f"Q{q}: {questions[q-1]}\nRecording: {recording_url}.mp3\n\n")
 
-    # ✅ Ask next question using speech input
     if q < len(questions):
-        gather = Gather(
-            input='speech',
+        response.say(questions[q])
+        response.record(
             action=f"/voice?q={q+1}",
             method="POST",
-            timeout=5
+            max_length=15,
+            timeout=5,
+            play_beep=True
         )
-        gather.say(questions[q])
-        response.append(gather)
-        response.redirect(f"/voice?q={q}")  # Retry if no input
     else:
         response.say("Thank you. We have recorded your responses. Goodbye!")
         response.hangup()
@@ -61,12 +59,8 @@ def voice():
     return str(response)
 
 @app.route('/download')
-def download_file():
-    file_path = "responses.txt"
-    try:
-        return send_file(file_path, as_attachment=True)
-    except FileNotFoundError:
-        return "❌ responses.txt not found.", 404
+def download():
+    return send_file("recordings.txt", as_attachment=True)
 
 if __name__ == '__main__':
     app.run(debug=True)
